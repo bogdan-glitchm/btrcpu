@@ -1,0 +1,12 @@
+start:
+    JMP main
+.PAD 8 0
+main:
+    PUTC [hello]
+    PUTC 105
+    PUTC 10
+    EXIT
+.PAD 4096 0
+hello:
+    .byte 72
+    .STR "test"

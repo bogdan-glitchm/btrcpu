@@ -1,0 +1,58 @@
+firmware_start:
+    ; check if r0 is null
+    WRITE r15 firmware_scratch_dword_1
+    WRITE r0 firmware_scratch_dword_2
+    WRITE r1 firmware_scratch_dword_3
+    MVCONST 0 r15
+    EQ r0 r0 r15
+    MVCONST 0 r15
+    EQ r0 r0 r15
+
+    ; if r0 is not null, this is a FIRM call, jmp to handler
+    JMPIF r0 handle_firm_call
+
+    ; if r0 is null, not a FIRM call, jmp to finish
+    MVCONST start r0
+    JMP finish
+
+handle_firm_call:
+    PUTC 71
+    MVCONST 1 r15
+    EQ r0 r1 r15
+    JMPIF r0 handle_firm_call_puts
+
+handle_firm_call_puts:
+    JMP handle_firm_call_puts_iterate
+handle_firm_call_puts_iterate:
+    READ.REG r1 r15
+
+    ; Check if char is null
+    MVCONST 0 r0
+    EQ r0 r15 r0
+    JMPIF r0 finish ; if null, go to finish
+
+    ; Output char
+    WRITE r15 firmware_scratch_puts_char
+    PUTC_MEM firmware_scratch_puts_char
+
+    ; Increment pointer
+    INCR r1
+finish:
+    READ firmware_scratch_dword_2 r0
+    READ firmware_scratch_dword_1 r15
+    READ firmware_scratch_dword_3 r1
+    PUTC 70
+    JMP.REG r0
+
+firmware_scratch_dword_1:
+    .dword 0
+
+firmware_scratch_dword_2:
+    .dword 0
+
+firmware_scratch_dword_3:
+    .dword 0
+
+firmware_scratch_puts_char:
+    .byte 0
+.PAD 4096 0
